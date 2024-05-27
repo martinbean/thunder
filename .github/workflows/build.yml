@@ -23,8 +23,14 @@ jobs:
           sudo apt-get update
           sudo apt-get --assume-yes --quiet install bchunk binutils-mips-linux-gnu build-essential cpp-mips-linux-gnu gcc-mips-linux-gnu git python3
 
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
       - name: Install Python packages
-        run: python3 -m pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Make
         env:
@@ -33,5 +39,5 @@ jobs:
           make setup
           make
 
-      - name: Generate checksum
-        run: sha256sum ./build/THUNDER.EXE
+      - name: Check checksums
+        run: ./scripts/checksum.py
