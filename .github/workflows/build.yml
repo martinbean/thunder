@@ -17,7 +17,10 @@ jobs:
 
       - name: Make
         env:
-          COMPARE: 0
+          CHECK_ROM: 0
         run: |
           make setup
           make
+
+      - name: Echo generated executable checksum
+        run: echo sha256sum ./build/THUNDER.EXE

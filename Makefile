@@ -1,15 +1,19 @@
-### Build Options ###
-
-BASEEXE      := SLUS_007.79
-TARGET       := THUNDER
-COMPARE      ?= 1
+# Build options
+BASEEXE := SLUS_007.79
+TARGET := THUNDER
+COMPARE ?= 1
 NON_MATCHING ?= 0
-VERBOSE      ?= 0
-BUILD_DIR    ?= build
+VERBOSE ?= 0
+BUILD_DIR ?= build
+CHECK_ROM ?= 1
 
-# Fail early if baserom does not exist
-ifeq ($(wildcard $(BASEEXE)),)
-$(error Baserom `$(BASEEXE)' not found.)
+ifeq ($(CHECK_ROM),1)
+  # Fail early if baserom does not exist
+  ifeq ($(wildcard $(BASEEXE)),)
+  $(error Baserom `$(BASEEXE)' not found.)
+  endif
+else
+  override COMPARE=0
 endif
 
 # NON_MATCHING=1 implies COMPARE=0
@@ -113,27 +117,23 @@ split:
 
 # Compile .c files
 $(BUILD_DIR)/%.c.o: %.c
-	@echo "TASK: $(BUILD_DIR)/%.c.o: %.c"
 	@$(PRINT)$(GREEN)Compiling C file: $(ENDGREEN)$(BLUE)$<$(ENDBLUE)$(ENDLINE)
 	@mkdir -p $(shell dirname $@)
 	$(V)$(CPP) $(CPPFLAGS) -ffreestanding -MMD -MP -MT $@ -MF $@.d $< | $(CC) $(CFLAGS) | $(MASPSX) | $(AS) $(ASFLAGS) -o $@
 
 # Compile .s files
 $(BUILD_DIR)/%.s.o: %.s
-	@echo "TASK: $(BUILD_DIR)/%.s.o: %.s"
 	@$(PRINT)$(GREEN)Assembling asm file: $(ENDGREEN)$(BLUE)$<$(ENDBLUE)$(ENDLINE)
 	@mkdir -p $(shell dirname $@)
 	$(V)$(AS) $(ASFLAGS) -o $@ $<
 
 # Create .o files from .bin files.
 $(BUILD_DIR)/%.bin.o: %.bin
-	@echo "TASK: $(BUILD_DIR)/%.bin.o: %.bin"
 	@$(PRINT)$(GREEN)objcopying binary file: $(ENDGREEN)$(BLUE)$<$(ENDBLUE)$(ENDLINE)
 	@mkdir -p $(shell dirname $@)
 	$(V)$(LD) -r -b binary -o $@ $<
 
 $(BUILD_DIR)/$(LD_SCRIPT): $(LD_SCRIPT)
-	@echo "TASK: $(BUILD_DIR)/$(LD_SCRIPT): $(LD_SCRIPT)"
 	@$(PRINT)$(GREEN)Preprocessing linker script: $(ENDGREEN)$(BLUE)$<$(ENDBLUE)$(ENDLINE)
 	echo "Doing this..."
 	$(V)$(CPP) -P -DBUILD_PATH=$(BUILD_DIR) $< -o $@
@@ -142,13 +142,11 @@ $(BUILD_DIR)/$(LD_SCRIPT): $(LD_SCRIPT)
 
 # Link the .o files into the .elf
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) $(BUILD_DIR)/$(LD_SCRIPT)
-	@echo "TASK: $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) $(BUILD_DIR)/$(LD_SCRIPT)"
 	@$(PRINT)$(GREEN)Linking elf file: $(ENDGREEN)$(BLUE)$@$(ENDBLUE)$(ENDLINE)
 	$(V)$(LD) $(LDFLAGS) -o $@
 
 # Convert the .elf to the final exe
 $(EXE): $(BUILD_DIR)/$(TARGET).elf
-	@echo "TASK: $(EXE): $(BUILD_DIR)/$(TARGET).elf"
 	@$(PRINT)$(GREEN)Creating EXE: $(ENDGREEN)$(BLUE)$@$(ENDBLUE)$(ENDLINE)
 	$(V)$(OBJCOPY) $< $@ -O binary
 	$(V)$(OBJCOPY) -O binary --gap-fill 0x00 --pad-to 0x05BFE0 $< $@
