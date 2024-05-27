@@ -10,17 +10,20 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
 
+      - name: Download ROM
+        run: aws s3 cp s3://${{ env.S3_BUCKET }}/thunder/SLUS_007.79 SLUS_007.79
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get --assume-yes --quiet install bchunk binutils-mips-linux-gnu build-essential cpp-mips-linux-gnu gcc-mips-linux-gnu git python3
 
       - name: Install Python packages
-        run: pip install -r requirements.txt
+        run: python3 -m pip install -r requirements.txt
 
       - name: Make
         env:
-          CHECK_ROM: 0
+          COMPARE: 0
         run: |
           make setup
           make

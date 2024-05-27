@@ -5,15 +5,10 @@ COMPARE ?= 1
 NON_MATCHING ?= 0
 VERBOSE ?= 0
 BUILD_DIR ?= build
-CHECK_ROM ?= 1
 
-ifeq ($(CHECK_ROM),1)
-  # Fail early if baserom does not exist
-  ifeq ($(wildcard $(BASEEXE)),)
-  $(error Baserom `$(BASEEXE)' not found.)
-  endif
-else
-  override COMPARE=0
+# Fail early if baserom does not exist
+ifeq ($(wildcard $(BASEEXE)),)
+$(error Baserom `$(BASEEXE)' not found.)
 endif
 
 # NON_MATCHING=1 implies COMPARE=0
