@@ -15,6 +15,9 @@ jobs:
           sudo apt-get update
           sudo apt-get --assume-yes --quiet install bchunk binutils-mips-linux-gnu build-essential cpp-mips-linux-gnu gcc-mips-linux-gnu git python3
 
+      - name: Install Python packages
+        run: pip install -r requirements.txt
+
       - name: Make
         env:
           CHECK_ROM: 0
