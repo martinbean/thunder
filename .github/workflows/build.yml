@@ -16,7 +16,7 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-        run: aws s3 cp s3://${{ env.S3_BUCKET }}/thunder/SLUS_007.79 SLUS_007.79 --debug
+        run: aws s3 cp s3://${{ env.S3_BUCKET }}/thunder/SLUS_007.79 SLUS_007.79
 
       - name: Install dependencies
         run: |
@@ -33,5 +33,5 @@ jobs:
           make setup
           make
 
-      - name: Echo generated executable checksum
-        run: echo sha256sum ./build/THUNDER.EXE
+      - name: Generate checksum
+        run: sha256sum ./build/THUNDER.EXE
