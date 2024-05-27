@@ -1,0 +1,21 @@
+name: Build
+
+on: push
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get --assume-yes --quiet install bchunk binutils-mips-linux-gnu build-essential cpp-mips-linux-gnu gcc-mips-linux-gnu git python3
+
+      - name: Make
+        run: |
+          make setup
+          make
