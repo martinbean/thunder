@@ -55,6 +55,11 @@ segments:
     # bss_size: Please fill out this value when you figure out the bss size
     subsegments:
       - [0x800, rodata, 800]
-      - [0x106A8, asm, 106A8] # estimated
+      - [0x10760, asm, main]
+      - [0x10C64, asm, 10C64]
+      - [0x11B10, asm, cache_file_pos]
+      - [0x11B60, asm, 11B60]
+      - [0x14C1C, asm, decode_data]
+      - [0x14CB0, asm, 14CB0]
       - [0x3A3F4, data, 3A3F4] # estimated
   - [0x5C000]
