@@ -3,7 +3,7 @@
 
 extern FileInfo D_8004A4BC[FILES_COUNT];
 
-extern void *func_80021490(FileInfo* files, uint32_t offset);
+extern void *func_80021490(FileInfo *files, uint32_t offset);
 
 void cache_file_pos(void)
 {
