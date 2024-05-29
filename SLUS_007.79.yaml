@@ -61,5 +61,7 @@ segments:
       - [0x11B60, asm, 11B60]
       - [0x14C1C, asm, decode_data]
       - [0x14CB0, asm, 14CB0]
+      - [0x14CC4, asm, movie]
+      - [0x156C8, asm, 156C8]
       - [0x3A3F4, data, 3A3F4] # estimated
   - [0x5C000]

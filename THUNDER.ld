@@ -30,6 +30,8 @@ SECTIONS
         BUILD_PATH/asm/11B60.s.o(.rodata);
         BUILD_PATH/asm/decode_data.s.o(.rodata);
         BUILD_PATH/asm/14CB0.s.o(.rodata);
+        BUILD_PATH/asm/movie.s.o(.rodata);
+        BUILD_PATH/asm/156C8.s.o(.rodata);
         . = ALIGN(., 4);
         main_RODATA_END = .;
         main_RODATA_SIZE = ABSOLUTE(main_RODATA_END - main_RODATA_START);
@@ -40,6 +42,8 @@ SECTIONS
         BUILD_PATH/asm/11B60.s.o(.text);
         BUILD_PATH/asm/decode_data.s.o(.text);
         BUILD_PATH/asm/14CB0.s.o(.text);
+        BUILD_PATH/asm/movie.s.o(.text);
+        BUILD_PATH/asm/156C8.s.o(.text);
         . = ALIGN(., 4);
         main_TEXT_END = .;
         main_TEXT_SIZE = ABSOLUTE(main_TEXT_END - main_TEXT_START);
@@ -58,6 +62,10 @@ SECTIONS
         BUILD_PATH/asm/decode_data.s.o(.data);
         _14CB0_s = .;
         BUILD_PATH/asm/14CB0.s.o(.data);
+        movie_s = .;
+        BUILD_PATH/asm/movie.s.o(.data);
+        _156C8_s = .;
+        BUILD_PATH/asm/156C8.s.o(.data);
         _3A3F4_data__s = .;
         BUILD_PATH/asm/data/3A3F4.data.s.o(.data);
         . = ALIGN(., 4);
@@ -71,6 +79,8 @@ SECTIONS
         BUILD_PATH/asm/11B60.s.o(.bss);
         BUILD_PATH/asm/decode_data.s.o(.bss);
         BUILD_PATH/asm/14CB0.s.o(.bss);
+        BUILD_PATH/asm/movie.s.o(.bss);
+        BUILD_PATH/asm/156C8.s.o(.bss);
         . = ALIGN(., 4);
         main_BSS_END = .;
         main_BSS_SIZE = ABSOLUTE(main_BSS_END - main_BSS_START);
