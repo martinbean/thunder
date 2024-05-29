@@ -1,4 +1,6 @@
 # WCW/nWo Thunder
+[![Build](https://github.com/martinbean/thunder/actions/workflows/build.yml/badge.svg)](https://github.com/martinbean/thunder/actions/workflows/build.yml)
+
 A decompilation of the _WCW/nWo Thunder_ video game on PlayStation.
 
 ## Building
