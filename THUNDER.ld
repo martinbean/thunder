@@ -26,7 +26,7 @@ SECTIONS
         BUILD_PATH/asm/data/800.rodata.s.o(.rodata);
         BUILD_PATH/asm/main.s.o(.rodata);
         BUILD_PATH/asm/10C64.s.o(.rodata);
-        BUILD_PATH/asm/cache_file_pos.s.o(.rodata);
+        BUILD_PATH/src/cache_file_pos.c.o(.rodata);
         BUILD_PATH/asm/11B60.s.o(.rodata);
         BUILD_PATH/asm/decode_data.s.o(.rodata);
         BUILD_PATH/asm/14CB0.s.o(.rodata);
@@ -36,7 +36,7 @@ SECTIONS
         main_TEXT_START = .;
         BUILD_PATH/asm/main.s.o(.text);
         BUILD_PATH/asm/10C64.s.o(.text);
-        BUILD_PATH/asm/cache_file_pos.s.o(.text);
+        BUILD_PATH/src/cache_file_pos.c.o(.text);
         BUILD_PATH/asm/11B60.s.o(.text);
         BUILD_PATH/asm/decode_data.s.o(.text);
         BUILD_PATH/asm/14CB0.s.o(.text);
@@ -50,8 +50,8 @@ SECTIONS
         BUILD_PATH/asm/main.s.o(.data);
         _10C64_s = .;
         BUILD_PATH/asm/10C64.s.o(.data);
-        cache_file_pos_s = .;
-        BUILD_PATH/asm/cache_file_pos.s.o(.data);
+        cache_file_pos_c = .;
+        BUILD_PATH/src/cache_file_pos.c.o(.data);
         _11B60_s = .;
         BUILD_PATH/asm/11B60.s.o(.data);
         decode_data_s = .;
@@ -67,7 +67,7 @@ SECTIONS
         BUILD_PATH/asm/data/800.rodata.s.o(.bss);
         BUILD_PATH/asm/main.s.o(.bss);
         BUILD_PATH/asm/10C64.s.o(.bss);
-        BUILD_PATH/asm/cache_file_pos.s.o(.bss);
+        BUILD_PATH/src/cache_file_pos.c.o(.bss);
         BUILD_PATH/asm/11B60.s.o(.bss);
         BUILD_PATH/asm/decode_data.s.o(.bss);
         BUILD_PATH/asm/14CB0.s.o(.bss);
