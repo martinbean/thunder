@@ -41,5 +41,7 @@ jobs:
           make setup
           make
 
+      # TODO: Expand to also build and compare WGAME and WMENU overlays
+
       - name: Check checksums
-        run: ./scripts/checksum.py
+        run: ./scripts/checksum/checksum.py
