@@ -7,8 +7,8 @@ import sys
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def main() -> int:
-    actual = get_checksum(dir_path + "/../build/THUNDER.EXE")
-    expected = get_checksum(dir_path + "/../SLUS_007.79")
+    actual = get_checksum(dir_path + "/../../build/THUNDER.EXE")
+    expected = get_checksum(dir_path + "/../../SLUS_007.79")
     if expected == actual:
         print("Checksums match.")
         return 0
