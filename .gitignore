@@ -1,3 +1,5 @@
+/.vscode
 /asm
+/assets
 /build
-SLUS_007.79
+/linker

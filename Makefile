@@ -1,158 +1,211 @@
-# Build options
-BASEEXE := SLUS_007.79
-TARGET := THUNDER
-COMPARE ?= 1
-NON_MATCHING ?= 0
-VERBOSE ?= 0
-BUILD_DIR ?= build
+# Configuration
+BUILD_OVERLAYS ?= 0
+NON_MATCHING   ?= 0
+SKIP_ASM       ?= 0
 
-# Fail early if baserom does not exist
-ifeq ($(wildcard $(BASEEXE)),)
-$(error Baserom `$(BASEEXE)' not found.)
-endif
+# Names and Paths
+GAME_NAME    := SLUS_007.79
+ROM_DIR      := disc
+CONFIG_DIR   := config
+LINKER_DIR   := linker
+BUILD_DIR    := build
+OUT_DIR      := $(BUILD_DIR)/out
+TOOLS_DIR    := tools
+OBJDIFF_DIR  := $(TOOLS_DIR)/objdiff
+PERMUTER_DIR := permuter
+ASSETS_DIR   := assets
+ASM_DIR      := asm
+C_DIR        := src
+EXPECTED_DIR := expected
 
-# NON_MATCHING=1 implies COMPARE=0
+# Tools
+CROSS   := mips-linux-gnu
+AS      := $(CROSS)-as
+LD      := $(CROSS)-ld
+OBJCOPY := $(CROSS)-objcopy
+OBJDUMP := $(CROSS)-objdump
+CPP     := $(CROSS)-cpp
+CC      := $(TOOLS_DIR)/gcc-2.7.2-psx/cc1
+OBJDIFF := $(OBJDIFF_DIR)/objdiff
+
+PYTHON          := python3
+SPLAT           := $(PYTHON) -m splat split
+MASPSX          := $(PYTHON) $(TOOLS_DIR)/maspsx/maspsx.py
+
+# Flags
+OPT_FLAGS           := -O2 -G4096
+ENDIAN              := -EL
+INCLUDE_FLAGS       := -Iinclude -I $(BUILD_DIR) -Iinclude/psyq
+DEFINE_FLAGS        := -D_LANGUAGE_C -DUSE_INCLUDE_ASM
+CPP_FLAGS           := $(INCLUDE_FLAGS) $(DEFINE_FLAGS) -P -MMD -MP -undef -Wall -lang-c -nostdinc
+LD_FLAGS            := $(ENDIAN) $(OPT_FLAGS) -nostdlib --no-check-sections
+OBJCOPY_FLAGS       := -O binary
+OBJDUMP_FLAGS       := --disassemble-all --reloc --disassemble-zeroes -Mreg-names=32
+SPLAT_FLAGS         := --disassemble-all
+DL_Flags := -G0
+AS_FLAGS := $(ENDIAN) $(INCLUDE_FLAGS) $(OPT_FLAGS) $(DL_FLAGS) -march=r3000 -mtune=r3000 -no-pad-sections
+CC_FLAGS := $(OPT_FLAGS) $(DL_FLAGS) -mips1 -mcpu=3000 -w -funsigned-char -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -mgas -fgnu-linker -quiet
+MASPSX_FLAGS := --aspsx-version=2.79 --run-assembler $(AS_FLAGS)
+
 ifeq ($(NON_MATCHING),1)
-override COMPARE=0
+	CPP_FLAGS := $(CPP_FLAGS) -DNON_MATCHING
 endif
 
-ifeq ($(VERBOSE),0)
-V := @
+ifeq ($(SKIP_ASM),1)
+	CPP_FLAGS := $(CPP_FLAGS) -DSKIP_ASM
 endif
 
-ifeq ($(OS),Windows_NT)
-  DETECTED_OS=windows
+# Utils
+
+# Function to find matching .s files for a target name.
+find_s_files = $(shell find $(ASM_DIR)/$(strip $1) -type f -path "*.s" -not -path "asm/*matchings*" 2> /dev/null)
+
+# Function to find matching .c files for a target name.
+find_c_files = $(shell find $(C_DIR)/$(strip $1) -type f -path "*.c" 2> /dev/null)
+
+# Function to generate matching .o files for target name in build directory.
+gen_o_files = $(addprefix $(BUILD_DIR)/, \
+							$(patsubst %.s, %.s.o, $(call find_s_files, $1)) \
+							$(patsubst %.c, %.c.o, $(call find_c_files, $1)))
+
+get_target_out = $(addprefix $(OUT_DIR)/,$1)
+
+# Template definition for elf target.
+# First parameter should be source target with folder (e.g. screens/credits).
+# Second parameter should be end target (e.g. build/VIN/STF_ROLL.BIN).
+# If we skip the ASM inclusion to determine progress, we will not be able to link. Skip linking, if so.
+
+ifeq ($(SKIP_ASM),1)
+
+define make_elf_target
+$2: $2.elf
+$2.elf: $(call gen_o_files, $1)
+endef
+
 else
-  UNAME_S := $(shell uname -s)
-  ifeq ($(UNAME_S),Linux)
-    DETECTED_OS=linux
-  endif
-  ifeq ($(UNAME_S),Darwin)
-    DETECTED_OS=macos
-    MAKE=gmake
-    CPPFLAGS += -xc++
-  endif
+
+define make_elf_target
+$2: $2.elf
+	$(OBJCOPY) $(OBJCOPY_FLAGS) $$< $$@
+
+$2.elf: $(call gen_o_files, $1)
+	@mkdir -p $(dir $2)
+	$(LD) $(LD_FLAGS) \
+		-Map $2.map \
+		-T $(LINKER_DIR)/$1.ld \
+		-T $(LINKER_DIR)/$(filter-out ./,$(dir $1))undefined_syms_auto.$(notdir $1).txt \
+		-T $(LINKER_DIR)/$(filter-out ./,$(dir $1))undefined_funcs_auto.$(notdir $1).txt \
+		-o $$@
+endef
+
 endif
 
-### Output ###
+# Targets
+TARGET_MAIN := slus_007.79
 
-EXE          := $(BUILD_DIR)/$(TARGET).EXE
-ELF          := $(BUILD_DIR)/$(TARGET).elf
-LD_SCRIPT    := $(TARGET).ld
-LD_MAP       := $(BUILD_DIR)/$(TARGET).map
-
-### Tools ###
-
-PYTHON     := python3
-SPLAT_YAML := $(BASEEXE).yaml
-SPLAT      := $(PYTHON) -m splat split $(SPLAT_YAML)
-DIFF       := diff
-MASPSX     := $(PYTHON) tools/maspsx/maspsx.py --aspsx-version=2.81 -G4096
-
-CROSS    := mips-linux-gnu-
-AS       := $(CROSS)as -EL
-LD       := $(CROSS)ld -EL
-OBJCOPY  := $(CROSS)objcopy
-STRIP    := $(CROSS)strip
-CPP      := $(CROSS)cpp
-CC       := tools/gcc2.7.2-mipsel/cc1
-
-PRINT := printf '
- ENDCOLOR := \033[0m
- WHITE     := \033[0m
- ENDWHITE  := $(ENDCOLOR)
- GREEN     := \033[0;32m
- ENDGREEN  := $(ENDCOLOR)
- BLUE      := \033[0;34m
- ENDBLUE   := $(ENDCOLOR)
- YELLOW    := \033[0;33m
- ENDYELLOW := $(ENDCOLOR)
- PURPLE    := \033[0;35m
- ENDPURPLE := $(ENDCOLOR)
-ENDLINE := \n'
-
-### Compiler Options ###
-
-ASFLAGS        := -Iinclude -march=r3000 -mtune=r3000 -no-pad-sections
-CFLAGS         := -O2 -G4096 -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fgnu-linker -mgas -mgpOPT -mgpopt -msoft-float -gcoff -quiet
-CPPFLAGS       := -Iinclude
-LDFLAGS        := -T undefined_syms.txt -T undefined_funcs.txt -T $(BUILD_DIR)/$(LD_SCRIPT) -Map $(LD_MAP) \
-                  --no-check-sections -nostdlib
-
-ifeq ($(NON_MATCHING),1)
-CPPFLAGS += -DNON_MATCHING
+ifeq ($(BUILD_OVERLAYS), 1)
+# TODO: Support building WGAME and WMENU overlays
+TARGET_OVERLAYS :=
 endif
 
-### Sources ###
+# Source definitions
+TARGET_IN  := $(TARGET_MAIN) $(TARGET_OVERLAYS)
+TARGET_OUT := $(foreach target,$(TARGET_IN),$(call get_target_out,$(target)))
+LD_FILES   := $(addsuffix .ld,$(addprefix $(LINKER_DIR)/,$(TARGET_IN)))
 
-# Object files
-OBJECTS := $(shell grep -E 'BUILD_PATH.+\.o' $(LD_SCRIPT) -o)
-OBJECTS := $(OBJECTS:BUILD_PATH/%=$(BUILD_DIR)/%)
-DEPENDS := $(OBJECTS:=.d)
+# Rules
+default: all
 
-### Targets ###
+all: build
 
-all: $(EXE)
+build: $(TARGET_OUT)
 
--include $(DEPENDS)
+objdiff-config: regenerate
+	@$(MAKE) NON_MATCHING=0 SKIP_ASM=0 expected
+	@$(MAKE) NON_MATCHING=1 SKIP_ASM=1 build
+	@$(PYTHON) $(OBJDIFF_DIR)/objdiff_generate.py $(OBJDIFF_DIR)/config.yaml
+
+report: objdiff-config
+	@$(OBJDIFF) report generate > $(BUILD_DIR)/progress.json
+
+check: build
+	@sha256sum --ignore-missing --check $(CONFIG_DIR)/checksum.sha
+
+progress:
+	$(MAKE) build NON_MATCHING=1 SKIP_ASM=1
+
+expected: check
+	mkdir -p $(EXPECTED_DIR)
+	mv build/src $(EXPECTED_DIR)/src
+	mv build/asm $(EXPECTED_DIR)/asm
+	rm -rf $(BUILD_DIR)
+
+generate: $(LD_FILES)
 
 clean:
-	$(V)rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)
+	rm -rf $(PERMUTER_DIR)
 
-distclean: clean
-	$(V)rm -f $(LD_SCRIPT)
-	$(V)rm -rf asm
-	$(V)rm -rf *_auto.txt
+reset: clean
+	rm -rf $(ASM_DIR)
+	rm -rf $(LINKER_DIR)
+	rm -rf $(EXPECTED_DIR)
 
-setup: distclean split
+regenerate: reset
+	$(MAKE) generate
 
-split:
-	$(V)$(SPLAT)
+setup: reset
+	$(MAKE) generate
 
-# Compile .c files
-$(BUILD_DIR)/%.c.o: %.c
-	@$(PRINT)$(GREEN)Compiling C file: $(ENDGREEN)$(BLUE)$<$(ENDBLUE)$(ENDLINE)
-	@mkdir -p $(shell dirname $@)
-	$(V)$(CPP) $(CPPFLAGS) -ffreestanding -MMD -MP -MT $@ -MF $@.d $< | $(CC) $(CFLAGS) | $(MASPSX) | $(AS) $(ASFLAGS) -o $@
+clean-build: clean
+	rm -rf $(LINKER_DIR)
+	$(MAKE) generate
+	$(MAKE) build
 
-# Compile .s files
+clean-check: clean
+	rm -rf $(LINKER_DIR)
+	$(MAKE) generate
+	$(MAKE) check
+
+clean-progress: clean
+	rm -rf $(LINKER_DIR)
+	$(MAKE) generate
+	$(MAKE) progress
+
+# Recipes
+
+# .elf targets
+# Generate .elf target for each target from TARGET_IN.
+$(foreach target,$(TARGET_IN),$(eval $(call make_elf_target,$(target),$(call get_target_out,$(target)))))
+
+# Generate objects.
+$(BUILD_DIR)/%.i: %.c
+	@mkdir -p $(dir $@)
+	$(CPP) -P -MMD -MP -MT $@ -MF $@.d $(CPP_FLAGS) -o $@ $<
+
+$(BUILD_DIR)/%.c.s: $(BUILD_DIR)/%.i
+	@mkdir -p $(dir $@)
+	$(CC) $(CC_FLAGS) -o $@ $<
+
+$(BUILD_DIR)/%.c.o: $(BUILD_DIR)/%.c.s
+	@mkdir -p $(dir $@)
+	-$(MASPSX) $(MASPSX_FLAGS) -o $@ $<
+	-$(OBJDUMP) $(OBJDUMP_FLAGS) $@ > $(@:.o=.dump.s)
+
 $(BUILD_DIR)/%.s.o: %.s
-	@$(PRINT)$(GREEN)Assembling asm file: $(ENDGREEN)$(BLUE)$<$(ENDBLUE)$(ENDLINE)
-	@mkdir -p $(shell dirname $@)
-	$(V)$(AS) $(ASFLAGS) -o $@ $<
+	@mkdir -p $(dir $@)
+	$(AS) $(AS_FLAGS) -o $@ $<
 
-# Create .o files from .bin files.
 $(BUILD_DIR)/%.bin.o: %.bin
-	@$(PRINT)$(GREEN)objcopying binary file: $(ENDGREEN)$(BLUE)$<$(ENDBLUE)$(ENDLINE)
-	@mkdir -p $(shell dirname $@)
-	$(V)$(LD) -r -b binary -o $@ $<
+	@mkdir -p $(dir $@)
+	$(LD) -r -b binary -o $@ $<
 
-$(BUILD_DIR)/$(LD_SCRIPT): $(LD_SCRIPT)
-	@$(PRINT)$(GREEN)Preprocessing linker script: $(ENDGREEN)$(BLUE)$<$(ENDBLUE)$(ENDLINE)
-	$(V)$(CPP) -P -DBUILD_PATH=$(BUILD_DIR) $< -o $@
-#Temporary hack for noload segment wrong alignment
-	@sed -r -i 's/\.main_bss \(NOLOAD\) : SUBALIGN\(4\)/.main_bss main_SDATA_END (NOLOAD) : SUBALIGN(4)/g' $@
+# Split .yaml.
+$(LINKER_DIR)/%.ld: $(CONFIG_DIR)/%.yaml
+	@mkdir -p $(dir $@)
+	$(SPLAT) $(SPLAT_FLAGS) $<
 
-# Link the .o files into the .elf
-$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) $(BUILD_DIR)/$(LD_SCRIPT)
-	@$(PRINT)$(GREEN)Linking elf file: $(ENDGREEN)$(BLUE)$@$(ENDBLUE)$(ENDLINE)
-	$(V)$(LD) $(LDFLAGS) -o $@
-
-# Convert the .elf to the final exe
-$(EXE): $(BUILD_DIR)/$(TARGET).elf
-	@$(PRINT)$(GREEN)Creating EXE: $(ENDGREEN)$(BLUE)$@$(ENDBLUE)$(ENDLINE)
-	$(V)$(OBJCOPY) $< $@ -O binary
-	$(V)$(OBJCOPY) -O binary --gap-fill 0x00 --pad-to 0x05BFE0 $< $@
-ifeq ($(COMPARE),1)
-	@$(DIFF) $(BASEEXE) $(EXE) && printf "OK\n" || (echo 'The build succeeded, but did not match the base EXE. This is expected if you are making changes to the game. To skip this check, use "make COMPARE=0".' && false)
-endif
-
-### Make Settings ###
-
-.PHONY: all clean distclean setup split
-
-# Remove built-in implicit rules to improve performance
-MAKEFLAGS += --no-builtin-rules
-
-# Print target for debugging
-print-% : ; $(info $* is a $(flavor $*) variable set to [$($*)]) @true
+### Settings
+.SECONDARY:
+.PHONY: all clean default
+SHELL = /bin/bash -e -o pipefail

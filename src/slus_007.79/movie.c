@@ -18,17 +18,17 @@ typedef struct {
 
 extern const char S_time_out_in_decoding[];
 
-INCLUDE_ASM("asm/nonmatchings/movie", play_movie);
+INCLUDE_ASM("asm/slus_007.79/nonmatchings/movie", play_movie);
 
-INCLUDE_ASM("asm/nonmatchings/movie", strSetDefDecEnv);
+INCLUDE_ASM("asm/slus_007.79/nonmatchings/movie", strSetDefDecEnv);
 
-INCLUDE_ASM("asm/nonmatchings/movie", strInit);
+INCLUDE_ASM("asm/slus_007.79/nonmatchings/movie", strInit);
 
-INCLUDE_ASM("asm/nonmatchings/movie", strCallback);
+INCLUDE_ASM("asm/slus_007.79/nonmatchings/movie", strCallback);
 
-INCLUDE_ASM("asm/nonmatchings/movie", strNextVlc);
+INCLUDE_ASM("asm/slus_007.79/nonmatchings/movie", strNextVlc);
 
-INCLUDE_ASM("asm/nonmatchings/movie", strNext);
+INCLUDE_ASM("asm/slus_007.79/nonmatchings/movie", strNext);
 
 void strSync(DECENV *dec, int mode)
 {

@@ -12,39 +12,28 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Check out
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: true
-
-      - name: Download ROM
-        run: aws s3 cp s3://${{ env.S3_BUCKET }}/thunder/SLUS_007.79 SLUS_007.79
-
-      - name: Download PsyQ headers
-        run: aws s3 cp s3://${{ env.S3_BUCKET }}/psyq/include include/psyq --recursive
-
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get --assume-yes --quiet install bchunk binutils-mips-linux-gnu build-essential cpp-mips-linux-gnu gcc-mips-linux-gnu git python3
-
+          sudo apt-get --assume-yes --quiet install binutils-mips-linux-gnu build-essential cpp-mips-linux-gnu gcc-mips-linux-gnu git python3
       - name: Configure Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
           cache: 'pip'
-
+          python-version: '3.11'
       - name: Install Python packages
-        run: pip install -r requirements.txt
-
+        run: pip install --requirement requirements.txt
+      - name: Download ROM
+        run: aws s3 cp s3://${{ env.S3_BUCKET }}/thunder/SLUS_007.79 disc/SLUS_007.79
+      - name: Download Psy-Q headers
+        run: aws s3 cp s3://${{ env.S3_BUCKET }}/psyq/include include/psyq --recursive
       - name: Make
-        env:
-          COMPARE: 0
         run: |
           make setup
           make
-
-      # TODO: Expand to also build and compare WGAME and WMENU overlays
-
-      - name: Check checksums
-        run: ./scripts/checksum/checksum.py
+      - name: Check
+        run: make check

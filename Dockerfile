@@ -1,13 +1,16 @@
 FROM debian
 
-RUN apt-get update && \
-    apt-get install --quiet --yes \
-        bchunk \
-        binutils-mips-linux-gnu \
-        build-essential \
-        cpp-mips-linux-gnu \
-        gcc-mips-linux-gnu \
-        git \
-        # p7zip-full \
-        # p7zip-rar \
-        python3
+WORKDIR /usr/local/src
+
+RUN apt-get -y update && \
+	apt-get -qy install \
+		binutils-mips-linux-gnu \
+		cpp-mips-linux-gnu \
+		python3 \
+		python3-pip
+
+COPY . .
+
+RUN pip3 install --break-system-packages --requirement requirements.txt
+
+ENTRYPOINT [ "make" ]

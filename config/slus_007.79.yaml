@@ -1,17 +1,20 @@
 name: "WCW/nWo Thunder (main executable)"
 sha1: 8c0058f2dec7b329494e234bda813dff60510c57
 options:
-  basename: THUNDER
-  target_path: SLUS_007.79
-  base_path: .
+  basename: slus_007.79
+  target_path: disc/SLUS_007.79
+  elf_path: build/slus_007.79.elf
+  base_path: ..
   platform: psx
-  compiler: GCC
-  asm_path: asm
-  src_path: src
-  build_path: BUILD_PATH
+  compiler: PSYQ
+
+  asm_path: asm/slus_007.79
+  src_path: src/slus_007.79
+  build_path: build
   # create_asm_dependencies: True
 
-  ld_script_path: THUNDER.ld
+  ld_script_path: linker/slus_007.79.ld
+  ld_dependencies: True
 
   find_file_boundaries: False
   gp_value: 0x8007B5AC
@@ -23,16 +26,16 @@ options:
   asm_jtbl_label_macro: jlabel
   asm_data_macro: dlabel
 
-  section_order: [".rodata", ".text", ".data", ".sdata", ".sbss", ".bss"]
-  # auto_all_sections: [".data", ".rodata", ".bss"]
+  section_order: [".rodata", ".text", ".data", ".bss"]
+  # auto_link_sections: [".data", ".rodata", ".bss"]
 
   symbol_addrs_path:
-    - symbol_addrs.txt
+    - config/symbol_addrs.slus_007.79.txt
   reloc_addrs_path:
-    - reloc_addrs.txt
+    - config/reloc_addrs.slus_007.79.txt
 
-  undefined_funcs_auto_path: undefined_funcs.txt
-  undefined_syms_auto_path: undefined_syms.txt
+  undefined_funcs_auto_path: linker/undefined_funcs_auto.slus_007.79.txt
+  undefined_syms_auto_path: linker/undefined_syms_auto.slus_007.79.txt
 
   extensions_path: tools/splat_ext
 
