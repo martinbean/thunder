@@ -28,7 +28,7 @@ options:
 
   symbol_addrs_path:
     - config/symbol_addrs.wgame.txt
-    - config/symbol_addrs.slus_006.64.txt
+    - config/symbol_addrs.slus_007.79.txt
   reloc_addrs_path:
     - configs/reloc_addrs.wgame.txt
 
