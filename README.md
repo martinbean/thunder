@@ -15,3 +15,6 @@ With the executable in the correct location, you should be able to run `make set
 
 ## Contributing
 Contributions are most welcome. Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+
+> [!NOTE]
+> There is also an effort to decompile this game’s prequel, _WCW Nitro_, here: https://github.com/martinbean/nitro
