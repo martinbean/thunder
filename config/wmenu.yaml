@@ -1,0 +1,59 @@
+name: "WCW/nWo Thunder (menu overlay)"
+sha1: 42fc2ad50ee318e9053414a1e95e93347510fefd
+options:
+  basename: wmenu.bin
+  target_path: disc/WMENU.BIN
+  base_path: ../
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/wmenu
+  src_path: src/wmenu
+  build_path: build/
+
+  ld_script_path: linker/wmenu.ld
+
+  find_file_boundaries: False
+  gp_value: 0x8006b5ac
+  global_vram_start: 0x80010000
+
+  o_as_suffix: False
+  use_legacy_include_asm: False
+
+  asm_function_macro: glabel
+  asm_jtbl_label_macro: jlabel
+  asm_data_macro: dlabel
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  symbol_addrs_path:
+    - config/symbol_addrs.wmenu.txt
+    - config/symbol_addrs.slus_006.64.txt
+  reloc_addrs_path:
+    - configs/reloc_addrs.wmenu.txt
+
+  undefined_funcs_auto_path: linker/undefined_funcs_auto.wmenu.txt
+  undefined_syms_auto_path: linker/undefined_syms_auto.wmenu.txt
+
+  extensions_path: tools/splat_ext
+
+  subalign: 4
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: wmenu
+    type: code
+    start: 0x0
+    align: 4
+    subalign: 4
+    vram: 0x8007cfb8
+    subsegments:
+      - [0x0, rodata]
+      - [0x1A04, asm] # start of WMENU overlay functions
+      - [0x6354, asm] # WMENU overlay main function
+      - [0x14680, asm] # WMENU overlay functions continue
+      - [0x154D8, data, 154D8] # WMENU overlay functions end
+  - [0x15F2EC]

@@ -6,9 +6,24 @@ A decompilation of the _WCW/nWo Thunder_ video game on PlayStation.
 ![WCW/nWo Thunder cover art](art/cover.jpg)
 
 ## Building
-The project has a `Makefile` that builds an executable from assembly. This expects the main executable from the game disc (**SLUS_007.79**) in the **disc** sub-directory. This file is not provided, so you are expected to have your own copy.
 
-With the executable in the correct location, you should be able to run `make setup`. If that step succeeds, then run `make`. The `Makefile` will, by default, report if the generated executable matches the original.
+### Prerequisites
+The following files need to be present in the **disc** sub-directory:
+
+- **SLUS_007.79** (found in the ISO)
+- **WGAME.BIN**
+- **WMENU.BIN**
+
+> [!IMPORTANT]
+> The **WGAME.BIN** and **WMENU.BIN** files are also found in the ISO, but they need to be decoded first. A tool for decoding these files can be found in the [**tools/rle**](tools/rle) directory.
+
+Then you can run the following Make recipes:
+
+```sh
+make setup
+make # Does the actual build
+make check # Checks the generated binaries have the expected checksums
+```
 
 > [!TIP]
 > If you are on a non-Linux environment (including macOS), there is a [**Dockerfile**](Dockerfile) that will install the required packages, and can be used to run `make` commands instead.

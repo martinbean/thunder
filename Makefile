@@ -1,5 +1,5 @@
 # Configuration
-BUILD_OVERLAYS ?= 0
+BUILD_OVERLAYS ?= 1
 NON_MATCHING   ?= 0
 SKIP_ASM       ?= 0
 
@@ -104,8 +104,7 @@ endif
 TARGET_MAIN := slus_007.79
 
 ifeq ($(BUILD_OVERLAYS), 1)
-# TODO: Support building WGAME and WMENU overlays
-TARGET_OVERLAYS :=
+TARGET_OVERLAYS := wgame wmenu
 endif
 
 # Source definitions

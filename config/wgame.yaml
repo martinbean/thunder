@@ -1,0 +1,58 @@
+name: "WCW/nWo Thunder (game overlay)"
+sha1: d500c84e51e73cd44af0691ffa8d10f898b8c521
+options:
+  basename: wgame.bin
+  target_path: disc/WGAME.BIN
+  base_path: ../
+  platform: psx
+  compiler: PSYQ
+
+  asm_path: asm/wgame
+  src_path: src/wgame
+  build_path: build/
+
+  ld_script_path: linker/wgame.ld
+
+  find_file_boundaries: False
+  gp_value: 0x8006b5ac
+  global_vram_start: 0x80010000
+
+  o_as_suffix: False
+  use_legacy_include_asm: False
+
+  asm_function_macro: glabel
+  asm_jtbl_label_macro: jlabel
+  asm_data_macro: dlabel
+
+  section_order: [".rodata", ".text", ".data", ".bss"]
+
+  symbol_addrs_path:
+    - config/symbol_addrs.wgame.txt
+    - config/symbol_addrs.slus_006.64.txt
+  reloc_addrs_path:
+    - configs/reloc_addrs.wgame.txt
+
+  undefined_funcs_auto_path: linker/undefined_funcs_auto.wgame.txt
+  undefined_syms_auto_path: linker/undefined_syms_auto.wgame.txt
+
+  extensions_path: tools/splat_ext
+
+  subalign: 4
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+segments:
+  - name: wgame
+    type: code
+    start: 0x0
+    align: 4
+    subalign: 4
+    vram: 0x8007cfb8
+    subsegments:
+      - [0x0, rodata]
+      - [0xE30, asm] # WGAME overlay main function
+      - [0x150C, asm, 150C] # WGAME overlay functions continue
+      - [0x1E0E4, data, 1E0E4] # WGAME overlay functions end
+  - [0x1812C0]
