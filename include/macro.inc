@@ -1,5 +1,3 @@
-.include "gte_macros.s"
-
 .macro glabel label
     .global \label
     .type \label, @function
@@ -19,3 +17,5 @@
 .macro move a, b
     addu \a, \b, $zero
 .endm
+
+.include "gte.inc"

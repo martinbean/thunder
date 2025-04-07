@@ -4,16 +4,16 @@
 #include "psyq/LIBGTE.H"
 #include "psyq/LIBGPU.H"
 
-typedef struct {
-	u_long *vlcbuf[2];
-	int vlcid;
-	u_short *imgbuf[2];
-	int imgid;
+typedef struct DECENV {
+	uint32_t *vlcbuf[2];
+	int32_t vlcid;
+	uint16_t *imgbuf[2];
+	int32_t imgid;
 	RECT rect[2];
-	int rectid;
+	int32_t rectid;
 	RECT slice;
-	int isdone;
-	int is24bit;
+	int32_t isdone;
+	int32_t is24bit;
 } DECENV;
 
 extern const char S_time_out_in_decoding[];
@@ -32,10 +32,12 @@ INCLUDE_ASM("asm/slus_007.79/nonmatchings/movie", strNext);
 
 void strSync(DECENV *dec, int mode)
 {
-	volatile u_long cnt = WAIT_TIME;
+	volatile uint32_t cnt = WAIT_TIME;
 
-	while (dec->isdone == 0) {
-		if (--cnt == 0) {
+	while (dec->isdone == 0)
+	{
+		if (--cnt == 0)
+		{
 			printf(&S_time_out_in_decoding);
 
 			dec->isdone = 1;
@@ -60,7 +62,8 @@ void strKickCD(CdlLOC *loc)
 
 	VSync(3);
 
-	if (CdRead2(CdlModeStream|CdlModeSpeed|CdlModeRT) == 0) {
+	if (CdRead2(CdlModeStream|CdlModeSpeed|CdlModeRT) == 0)
+	{
 		goto loop;
 	}
 }

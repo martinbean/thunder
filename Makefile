@@ -33,7 +33,7 @@ SPLAT           := $(PYTHON) -m splat split
 MASPSX          := $(PYTHON) $(TOOLS_DIR)/maspsx/maspsx.py
 
 # Flags
-OPT_FLAGS           := -O2 -G4096
+OPT_FLAGS           := -O3 -G4096
 ENDIAN              := -EL
 INCLUDE_FLAGS       := -Iinclude -I $(BUILD_DIR) -Iinclude/psyq
 DEFINE_FLAGS        := -D_LANGUAGE_C -DUSE_INCLUDE_ASM
@@ -45,7 +45,7 @@ SPLAT_FLAGS         := --disassemble-all
 DL_Flags := -G0
 AS_FLAGS := $(ENDIAN) $(INCLUDE_FLAGS) $(OPT_FLAGS) $(DL_FLAGS) -march=r3000 -mtune=r3000 -no-pad-sections
 CC_FLAGS := $(OPT_FLAGS) $(DL_FLAGS) -mips1 -mcpu=3000 -w -funsigned-char -fpeephole -ffunction-cse -fpcc-struct-return -fcommon -fverbose-asm -msoft-float -mgas -fgnu-linker -quiet
-MASPSX_FLAGS := --aspsx-version=2.79 --run-assembler $(AS_FLAGS)
+MASPSX_FLAGS := --aspsx-version=2.56 --run-assembler $(AS_FLAGS)
 
 ifeq ($(NON_MATCHING),1)
 	CPP_FLAGS := $(CPP_FLAGS) -DNON_MATCHING
